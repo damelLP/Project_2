@@ -1,3 +1,4 @@
+import org.ejml.simple.SimpleMatrix;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -5,16 +6,34 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class StackelbergUtilsTest {
 
     @Test
     public void getXGivenWindow() {
+        List<Float> testleader = Arrays.asList((float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
+                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
+                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
+                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90);
+        SimpleMatrix X = StackelbergUtils.getXGivenWindow(testleader, 5);
+
+        Assert.assertEquals(3, X.numRows());
+        Assert.assertEquals(6, X.numCols());
+
     }
 
     @Test
     public void getYGivenWindow() {
+        List<Float> testfollower = Arrays.asList((float)1.24, (float)1.64, (float)1.78,
+                                                 (float)1.24, (float)1.64, (float)1.78,
+                                                 (float)1.24, (float)1.64, (float)1.78);
+
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(testfollower, 3);
+
+        Assert.assertEquals(6, y.numRows());
+        Assert.assertEquals(1, y.numCols());
+
     }
 
     @Test

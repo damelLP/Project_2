@@ -1,18 +1,19 @@
 import org.apache.commons.lang3.ArrayUtils;
 import org.ejml.simple.SimpleMatrix;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.List;
 
 class StackelbergUtils {
     static SimpleMatrix getXGivenWindow(List<Float> our_prices, int window_size) {
-        SimpleMatrix X = new SimpleMatrix(our_prices.size() - window_size, window_size + 1);
-        for (int row = 0; row < our_prices.size() - window_size; row += window_size) {
+        int numRows = (our_prices.size() - window_size) / window_size;
+        int numCols = window_size + 1; // holds the intercept
+        SimpleMatrix X = new SimpleMatrix(numRows, numCols);
+        for (int row = 0; row < numRows; row += window_size) {
             // set the initial intercept val
             X.set(row, 0, 1);
-            for (int col = 1; col < window_size + 1; col++) {
+            for (int col = 1; col < numCols; col++) {
                 X.set(row, col, our_prices.get(row * window_size + col - 1));
             }
         }
