@@ -7,14 +7,14 @@ import java.util.List;
 
 class StackelbergUtils {
     static SimpleMatrix getXGivenWindow(List<Float> our_prices, int window_size) {
-        int numRows = (our_prices.size() - window_size) / window_size;
+        int numRows = (our_prices.size() - window_size);
         int numCols = window_size + 1; // holds the intercept
         SimpleMatrix X = new SimpleMatrix(numRows, numCols);
-        for (int row = 0; row < numRows; row += window_size) {
+        for (int row = 0; row < numRows; row++) {
             // set the initial intercept val
             X.set(row, 0, 1);
             for (int col = 1; col < numCols; col++) {
-                X.set(row, col, our_prices.get(row * window_size + col - 1));
+                X.set(row, col, our_prices.get(row + col - 1));
             }
         }
         return X;
@@ -22,7 +22,7 @@ class StackelbergUtils {
 
     static SimpleMatrix getYGivenWindow(List<Float> their_prices, int window_size) {
         SimpleMatrix y = new SimpleMatrix(their_prices.size() - window_size, 1);
-        for (int row = 0; row < their_prices.size() - window_size; row += window_size) {
+        for (int row = 0; row < their_prices.size() - window_size; row++) {
             y.set(row, 0, their_prices.get(row + window_size));
         }
         return y;

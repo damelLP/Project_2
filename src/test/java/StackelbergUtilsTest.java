@@ -18,7 +18,7 @@ public class StackelbergUtilsTest {
                                                 (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90);
         SimpleMatrix X = StackelbergUtils.getXGivenWindow(testleader, 5);
 
-        Assert.assertEquals(3, X.numRows());
+        Assert.assertEquals(testleader.size() - 5, X.numRows());
         Assert.assertEquals(6, X.numCols());
 
     }
@@ -31,7 +31,7 @@ public class StackelbergUtilsTest {
 
         SimpleMatrix y = StackelbergUtils.getYGivenWindow(testfollower, 3);
 
-        Assert.assertEquals(6, y.numRows());
+        Assert.assertEquals(testfollower.size() - 3, y.numRows());
         Assert.assertEquals(1, y.numCols());
 
     }
