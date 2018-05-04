@@ -1,6 +1,6 @@
 # Compiled class file
-*.class
 
+target/
 # Log file
 *.log
 
@@ -11,7 +11,8 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
+# Needed in this one rare case *.jar
+# Similarly we need this because of the comp34120 nonsense *.class
 *.war
 *.ear
 *.zip
