@@ -9,34 +9,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Leader extends PlayerImpl {
+public class Leader extends PlayerImpl implements Regressor {
 
     private ArrayList<Record> historicalData;
     private int WINDOW_SIZE = 10;
     private SimpleMatrix betas;
-    private List<Float> our_prices;
-    private List<Float> their_prices;
+    private int day;
 
-    private Leader() throws RemoteException, NotBoundException {
+    public Leader() throws RemoteException, NotBoundException {
         super(PlayerType.LEADER, "LR Leader");
-        our_prices = new ArrayList<>();
-        their_prices = new ArrayList<>();
     }
 
     public void startSimulation(final int p_steps) throws RemoteException {
         historicalData = new ArrayList<>();
-        for (int day = 1; day <= 100; day++) {
+        for (day = 1; day <= 100; day++) {
             Record new_record = m_platformStub.query(PlayerType.FOLLOWER, day);
             historicalData.add(new_record);
-            their_prices.add(new_record.m_followerPrice);
-            our_prices.add(new_record.m_leaderPrice);
+            theirPrices.add(new_record.m_followerPrice);
+            ourPrices.add(new_record.m_leaderPrice);
         }
-        SimpleMatrix X = StackelbergUtils.getXGivenWindow(our_prices, WINDOW_SIZE);
-        SimpleMatrix y = StackelbergUtils.getYGivenWindow(their_prices, WINDOW_SIZE);
-
         // Moore-penrose
-        betas = X.transpose().mult(X).invert().mult(X.transpose().mult(y));
+        betas = fit();
 
+    }
+
+    public void updatePrices(int day) throws RemoteException {
+        Record query = m_platformStub.query(m_type, day);
+        ourPrices.add(query.m_leaderPrice);
+        theirPrices.add(query.m_followerPrice);
     }
 
     private double calculateDailyProfit(float leaders_price, float followers_price) {
@@ -44,16 +44,26 @@ public class Leader extends PlayerImpl {
     }
 
     public void proceedNewDay(int p_date) throws RemoteException {
-        m_platformStub.publishPrice(m_type, generateLeaderPrice());
+//        m_platformStub.publishPrice(m_type, generateLeaderPrice());
+        m_platformStub.publishPrice(m_type, 2);
+
     }
 
-    private float generateLeaderPrice() {
-        SimpleMatrix X = StackelbergUtils.getXGivenWindow(our_prices, WINDOW_SIZE);
-        double follower_price = betas.dot(X.extractVector(true, X.numRows() - 1));
-        SimpleMatrix newXs = StackelbergUtils.getLeadersPrice(betas);
-        float newPrice = (float) newXs.get(newXs.numRows() - 1);
-        our_prices.add(newPrice);
-        return newPrice;
+    @Override
+    public SimpleMatrix fit() {
+        SimpleMatrix X = StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE);
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices, WINDOW_SIZE);
+        return X.transpose().mult(X).invert().mult(X.transpose().mult(y));
+    }
+
+    @Override
+    public SimpleMatrix predict() throws RemoteException {
+        if (day > 101) {
+            updatePrices(day - 1);
+            betas = fit();
+        }
+        day++;
+        return StackelbergUtils.getLeadersPrice(betas);
     }
 
     public static void main(final String[] p_args) throws RemoteException, NotBoundException {

@@ -59,16 +59,6 @@ public class StackelbergUtilsTest {
     }
 
     @Test
-    public void getPolynomials() {
-        INDArray twoDArray = Nd4j.create(new float[]{1,2,3,4,5,6,7,8}, new int[]{2,2,2});
-        INDArray poly_twoDArray = StackelbergUtils.getPolynomials(twoDArray, 2);
-        String twoD_transpose_shape = "Rank: 3,Offset: 0\n" +
-                " Order: f Shape: [2,2,4],  stride: [1,2,4]";
-
-        Assert.assertTrue(twoD_transpose_shape.equals(shapeToString(poly_twoDArray)));
-    }
-
-    @Test
     public void getLeadersPrice(){
         double fp = 1.86;
         double expected_lp = 1.779;
