@@ -13,6 +13,8 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
     private ArrayList<Record> historicalData;
     private SimpleMatrix betas;
     private int day;
+    private int WINDOW_SIZE = 5;
+    private int DEGREE = 3;
 
     private RidgeLeader() throws RemoteException, NotBoundException {
         super(PlayerType.LEADER, "LR Leader");
@@ -45,8 +47,6 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
 
     @Override
     public SimpleMatrix fit() {
-        int WINDOW_SIZE = 5;
-        int DEGREE = 3;
         SimpleMatrix X = StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE), DEGREE);
         SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices, WINDOW_SIZE);
         double LAMBDA = 2;
@@ -61,7 +61,7 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
             betas = fit();
         }
         day++;
-        return StackelbergUtils.getLeadersPrice(betas);
+        return StackelbergUtils.getLeadersPrice(betas, StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE), DEGREE));
     }
 
     @Override

@@ -63,7 +63,7 @@ public class Leader extends PlayerImpl implements Regressor {
             betas = fit();
         }
         day++;
-        return StackelbergUtils.getLeadersPrice(betas);
+        return StackelbergUtils.getLeadersPrice(betas, StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE));
     }
 
     public static void main(final String[] p_args) throws RemoteException, NotBoundException {
