@@ -54,14 +54,16 @@ class StackelbergUtils {
         return X;
     }
 
-    static SimpleMatrix getLeadersPrice(SimpleMatrix betas) {
-//        double fp = betas.dot(X.extractVector(true, X.numRows() - 1));
-//        return ((0.3 * fp) + 3)/2;
+    static SimpleMatrix getLeadersPrice(SimpleMatrix betas, SimpleMatrix X) {
+        double fp = betas.dot(X.extractVector(true, X.numRows() - 1));
+        double lp = ((0.3 * fp) + 3)/2;
+        SimpleMatrix sol = new SimpleMatrix(1,1);
+        sol.set(lp);
+        return sol;
 
-        SimpleMatrix scaled = betas.scale(0.3);
-        SimpleMatrix threes = new SimpleMatrix(betas.numRows(), betas.numCols());
-        threes.set(3);
-        return scaled.plus(threes).scale(.5);
-
+//        SimpleMatrix scaled = betas.scale(0.3);
+//        SimpleMatrix threes = new SimpleMatrix(betas.numRows(), betas.numCols());
+//        threes.set(3);
+//        return scaled.plus(threes).scale(.5);
     }
 }
