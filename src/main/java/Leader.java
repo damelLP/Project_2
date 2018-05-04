@@ -49,7 +49,7 @@ public class Leader extends PlayerImpl {
 
     private float generateLeaderPrice() {
         SimpleMatrix X = StackelbergUtils.getXGivenWindow(our_prices, WINDOW_SIZE);
-        double follower_price = betas.dot(X.extractVector(true, our_prices.size() - 1));
+        double follower_price = betas.dot(X.extractVector(true, X.numRows() - 1));
 
         return 1;
     }
