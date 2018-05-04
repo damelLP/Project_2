@@ -57,4 +57,8 @@ class StackelbergUtils {
         }
         return X;
     }
+
+    static double getLeadersPrice(double fp) {
+        return ((0.3 * fp) + 3)/2;
+    }
 }

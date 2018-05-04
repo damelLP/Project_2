@@ -2,7 +2,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,5 +34,13 @@ public class StackelbergUtilsTest {
         Assert.assertEquals(3, array.size(0));
         Assert.assertEquals(2, array.size(1));
         Assert.assertEquals(1, array.size(2));
+    }
+
+    @Test
+    public void getLeadersPrice(){
+        double fp = 1.86;
+        double expected_lp = 1.779;
+        double actual_lp = StackelbergUtils.getLeadersPrice(fp);
+        assertEquals(expected_lp, actual_lp, 0.01);
     }
 }
