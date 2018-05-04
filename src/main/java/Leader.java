@@ -12,7 +12,7 @@ import java.util.List;
 public class Leader extends PlayerImpl {
 
     private ArrayList<Record> historicalData;
-    private int WINDOW_SIZE = 1;
+    private int WINDOW_SIZE = 10;
     private SimpleMatrix betas;
     private List<Float> our_prices;
     private List<Float> their_prices;
@@ -49,13 +49,11 @@ public class Leader extends PlayerImpl {
 
     private float generateLeaderPrice() {
         SimpleMatrix X = StackelbergUtils.getXGivenWindow(our_prices, WINDOW_SIZE);
-        double follower_price = betas.dot(X.extractVector(true, our_prices.size() - 1));
-
-        return 1;
-    }
-
-    private double derivative(double lp, double fp) {
-        return (3 - (2 * lp) + (0.3 * fp));
+        double follower_price = betas.dot(X.extractVector(true, X.numRows() - 1));
+        SimpleMatrix newXs = StackelbergUtils.getLeadersPrice(betas);
+        float newPrice = (float) newXs.get(newXs.numRows() - 1);
+        our_prices.add(newPrice);
+        return newPrice;
     }
 
     public static void main(final String[] p_args) throws RemoteException, NotBoundException {
