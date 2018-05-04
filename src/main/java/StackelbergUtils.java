@@ -37,11 +37,6 @@ class StackelbergUtils {
         return y;
     }
 
-    static INDArray getPolynomials(INDArray X, int polynomial, int axis) {
-
-        return null;
-    }
-
     static INDArray get3DFeatures(List<Float> our_prices, int window_size) {
         int n_samples = our_prices.size() - window_size;
         INDArray X = Nd4j.ones(n_samples, window_size, 1);
