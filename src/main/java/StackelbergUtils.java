@@ -6,6 +6,8 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.List;
 
+import static org.nd4j.linalg.ops.transforms.Transforms.pow;
+
 class StackelbergUtils {
     static SimpleMatrix getXGivenWindow(List<Float> our_prices, int window_size) {
         SimpleMatrix X = new SimpleMatrix(our_prices.size() - window_size, window_size + 1);
@@ -36,9 +38,14 @@ class StackelbergUtils {
         return y;
     }
 
-    static INDArray getPolynomials(INDArray X, int polynomial, int axis) {
-
-        return null;
+    static INDArray getPolynomials(INDArray X, int polynomial) {
+        for (int p= 1; p <= polynomial; p++){
+            INDArray X_2 = pow(X, polynomial);
+            if (p>=2){
+                X = Nd4j.concat(0, X, X_2);
+            }
+        }
+        return X.transpose();
     }
 
     static INDArray get3DFeatures(List<Float> our_prices, int window_size) {
