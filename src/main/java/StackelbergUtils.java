@@ -1,4 +1,5 @@
 import org.apache.commons.lang3.ArrayUtils;
+import org.ejml.data.DMatrixRMaj;
 import org.ejml.simple.SimpleMatrix;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -18,6 +19,16 @@ class StackelbergUtils {
             }
         }
         return X;
+    }
+
+    static SimpleMatrix getPolynomial(SimpleMatrix X, int degree) {
+        SimpleMatrix newX = new SimpleMatrix(X.numRows(), ((X.numCols()-1) * degree) +1 );
+        SimpleMatrix x1 = X.extractVector(false, 1);
+        newX.insertIntoThis(0, 0, X);
+        for (int col = 1; col < degree; col++) {
+            newX.insertIntoThis(0, col, x1.elementPower(col));
+        }
+        return newX;
     }
 
     static SimpleMatrix getYGivenWindow(List<Float> their_prices, int window_size) {
@@ -60,6 +71,7 @@ class StackelbergUtils {
         SimpleMatrix sol = new SimpleMatrix(1,1);
         sol.set(lp);
         return sol;
+
 
 //        SimpleMatrix scaled = betas.scale(0.3);
 //        SimpleMatrix threes = new SimpleMatrix(betas.numRows(), betas.numCols());

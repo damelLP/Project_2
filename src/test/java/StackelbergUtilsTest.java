@@ -15,10 +15,10 @@ public class StackelbergUtilsTest {
 
     @Test
     public void getXGivenWindow() {
-        List<Float> testleader = Arrays.asList((float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
-                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
-                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90,
-                                                (float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90);
+        List<Float> testleader = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90);
         SimpleMatrix X = StackelbergUtils.getXGivenWindow(testleader, 5);
 
         Assert.assertEquals(testleader.size() - 5, X.numRows());
@@ -27,10 +27,24 @@ public class StackelbergUtilsTest {
     }
 
     @Test
+    public void getPolynomials() {
+        List<Float> testleader = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90);
+
+        SimpleMatrix X = StackelbergUtils.getXGivenWindow(testleader, 3);
+        SimpleMatrix testPoly = StackelbergUtils
+                .getPolynomial(X, 2);
+
+        Assert.assertEquals(7, testPoly.numCols());
+    }
+
+    @Test
     public void getYGivenWindow() {
-        List<Float> testfollower = Arrays.asList((float)1.24, (float)1.64, (float)1.78,
-                                                 (float)1.24, (float)1.64, (float)1.78,
-                                                 (float)1.24, (float)1.64, (float)1.78);
+        List<Float> testfollower = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78,
+                (float) 1.24, (float) 1.64, (float) 1.78,
+                (float) 1.24, (float) 1.64, (float) 1.78);
 
         SimpleMatrix y = StackelbergUtils.getYGivenWindow(testfollower, 3);
 
@@ -41,7 +55,7 @@ public class StackelbergUtilsTest {
 
     @Test
     public void get2DFeatures() {
-        List<Float> testfollower = Arrays.asList((float)1.24, (float)1.64, (float)1.78);
+        List<Float> testfollower = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78);
         INDArray array = StackelbergUtils.get2DFeatures(testfollower, 1);
 
         Assert.assertEquals(2, array.size(0));
@@ -50,7 +64,7 @@ public class StackelbergUtilsTest {
 
     @Test
     public void get3DFeatures() {
-        List<Float> testleader = Arrays.asList((float)1.24, (float)1.64, (float)1.78, (float)1.71, (float)1.90);
+        List<Float> testleader = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90);
         INDArray array = StackelbergUtils.get3DFeatures(testleader, 2);
 
         Assert.assertEquals(3, array.size(0));
@@ -59,7 +73,7 @@ public class StackelbergUtilsTest {
     }
 
     @Test
-    public void getLeadersPrice(){
+    public void getLeadersPrice() {
         double fp = 1.86;
         double expected_lp = 1.779;
         SimpleMatrix threes = new SimpleMatrix(10, 3);

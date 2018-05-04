@@ -21,12 +21,21 @@
     </build>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/com.googlecode.efficient-java-matrix-library/ejml -->
+        <!-- https://mvnrepository.com/artifact/org.ejml/ejml-core -->
         <dependency>
-            <groupId>com.googlecode.efficient-java-matrix-library</groupId>
-            <artifactId>ejml</artifactId>
-            <version>0.25</version>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-core</artifactId>
+            <version>0.34</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.googlecode.efficient-java-matrix-library/ejml -->
+        <!-- https://mvnrepository.com/artifact/org.ejml/ejml-simple -->
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-simple</artifactId>
+            <version>0.32</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-modelimport</artifactId>

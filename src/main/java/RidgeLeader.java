@@ -6,14 +6,11 @@ import org.ejml.simple.SimpleMatrix;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class RidgeLeader extends PlayerImpl implements Regressor  {
 
-    public double lambda = 2;
     private ArrayList<Record> historicalData;
-    private int windowSize = 5;
     private SimpleMatrix betas;
     private int day;
 
@@ -22,15 +19,13 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
     }
 
     public void startSimulation(final int p_steps) throws RemoteException {
-        historicalData = new ArrayList<>();
         for (day = 1; day <= 100; day++) {
             Record new_record = m_platformStub.query(PlayerType.FOLLOWER, day);
-            historicalData.add(new_record);
             theirPrices.add(new_record.m_followerPrice);
             ourPrices.add(new_record.m_leaderPrice);
         }
 
-        // Modified ore-penrose
+        // Modified moore-penrose
         betas = fit();
 
     }
@@ -42,8 +37,6 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
 
     public void proceedNewDay(int p_date) throws RemoteException {
         m_platformStub.publishPrice(m_type, generateLeaderPrice());
-//        m_platformStub.publishPrice(m_type, 2);
-
     }
 
     public static void main(final String[] p_args) throws RemoteException, NotBoundException {
@@ -52,10 +45,13 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
 
     @Override
     public SimpleMatrix fit() {
-        SimpleMatrix X = StackelbergUtils.getXGivenWindow(ourPrices, windowSize);
-        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices, windowSize);
+        int WINDOW_SIZE = 5;
+        int DEGREE = 3;
+        SimpleMatrix X = StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE), DEGREE);
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices, WINDOW_SIZE);
+        double LAMBDA = 2;
         return X.transpose().mult(X).plus(SimpleMatrix
-                .identity(X.numCols()).scale(lambda)).invert().mult(X.transpose().mult(y));
+                .identity(X.numCols()).scale(LAMBDA)).invert().mult(X.transpose().mult(y));
     }
 
     @Override
