@@ -88,10 +88,11 @@ public class DeepLeader extends PlayerImpl {
     }
 
     private float generateLeaderPrice() {
-        INDArray X = StackelbergUtils.get3DFeatures(our_prices, WINDOW_SIZE);
-        INDArray follower_price_Matrix = model.output(X.getRow(X.size(0)), false);
-        double follower_price = 1.8;
-        return (float) StackelbergUtils.getLeadersPrice(follower_price);
+//        INDArray X = StackelbergUtils.get3DFeatures(our_prices, WINDOW_SIZE);
+//        INDArray follower_price_Matrix = model.output(X.getRow(X.size(0)), false);
+//        double follower_price = 1.8;
+//        return (float) StackelbergUtils.getLeadersPrice(betas);
+        return 1;
     }
 
     private double derivative(double lp, double fp) {
