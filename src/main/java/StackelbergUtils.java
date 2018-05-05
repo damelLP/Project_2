@@ -22,10 +22,11 @@ class StackelbergUtils {
     }
 
     static SimpleMatrix getPolynomial(SimpleMatrix X, int degree) {
-        SimpleMatrix newX = new SimpleMatrix(X.numRows(), ((X.numCols()-1) * degree) +1 );
-        SimpleMatrix x1 = X.extractVector(false, 1);
-        newX.insertIntoThis(0, 0, X);
-        for (int col = 1; col < degree; col++) {
+        int columns = (X.numCols() - 1) * degree + 1;
+        SimpleMatrix newX = new SimpleMatrix(X.numRows(), columns);
+        SimpleMatrix x1 = X.extractMatrix(0, X.numRows(), 1, X.numCols());
+        newX = newX.plus(1); // set intercept
+        for (int col = 1; col < columns; col += x1.numCols()) {
             newX.insertIntoThis(0, col, x1.elementPower(col));
         }
         return newX;
@@ -65,17 +66,15 @@ class StackelbergUtils {
         return X;
     }
 
+    static SimpleMatrix getXGivenPolynomialAndWindow(List<Float> ourPrices, int multivariateWindow, int degree) {
+        return StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, multivariateWindow), degree);
+    }
+
     static SimpleMatrix getLeadersPrice(SimpleMatrix betas, SimpleMatrix X) {
         double fp = betas.dot(X.extractVector(true, X.numRows() - 1));
-        double lp = ((0.3 * fp) + 3)/2;
-        SimpleMatrix sol = new SimpleMatrix(1,1);
+        double lp = ((0.3 * fp) + 3) / 2;
+        SimpleMatrix sol = new SimpleMatrix(1, 1);
         sol.set(lp);
         return sol;
-
-
-//        SimpleMatrix scaled = betas.scale(0.3);
-//        SimpleMatrix threes = new SimpleMatrix(betas.numRows(), betas.numCols());
-//        threes.set(3);
-//        return scaled.plus(threes).scale(.5);
     }
 }

@@ -5,19 +5,19 @@ import org.ejml.simple.SimpleMatrix;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.List;
 
 
-public class RidgeLeader extends PlayerImpl implements Regressor  {
+public class RidgeLeader extends PlayerImpl implements Regressor {
 
-    private static final int TRAINING_WINDOW = 20;
-    private ArrayList<Record> historicalData;
+    private int trainingWindow;
     private SimpleMatrix betas;
     private int day;
-    private int WINDOW_SIZE = 10;
-    private int DEGREE = 5;
+    private int multivariateWindow;
+    private int degree;
+    private double lambda;
 
-    private RidgeLeader() throws RemoteException, NotBoundException {
+    RidgeLeader() throws RemoteException, NotBoundException {
         super(PlayerType.LEADER, "LR Leader");
     }
 
@@ -28,9 +28,50 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
             ourPrices.add(new_record.m_leaderPrice);
         }
 
-        // Modified moore-penrose
+        // Grid search on the model parameters
+        int[] trainingWindow = {10, 20, 30};
+        int[] multiWindows = {1, 5};
+        int[] polynomials = {1, 3, 5, 7};
+        float[] lambdas = {0, 2, 4, 6, 8};
+
+        double minError = Integer.MAX_VALUE;
+        double curError;
+        for (int trainWindow : trainingWindow) {
+            for (int vars : multiWindows) {
+                for (float lam : lambdas) {
+                    for (int polynomial : polynomials) {
+                        curError = getMSE(ourPrices, theirPrices, trainWindow, vars, lam, polynomial);
+                        if (curError < minError) {
+                            minError = curError;
+                            this.trainingWindow = trainWindow;
+                            this.multivariateWindow = vars;
+                            this.lambda = lam;
+                            this.degree = polynomial;
+                        }
+                    }
+                }
+            }
+        }
         betas = fit();
 
+    }
+
+    double getMSE(List<Float> ourPrices, List<Float> theirPrices, int trainWindow, int vars, float lam, int polynomial) {
+        List<Float> trainX = ourPrices.subList(0, trainWindow);
+        List<Float> trainY = theirPrices.subList(0, trainWindow);
+        List<Float> testX = ourPrices.subList(trainWindow, trainWindow + trainWindow);
+        List<Float> testY = theirPrices.subList(trainWindow, trainWindow + trainWindow);
+
+        SimpleMatrix X = StackelbergUtils.getXGivenPolynomialAndWindow(trainX, vars, polynomial);
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(trainY, vars);
+        SimpleMatrix testBetas = fitData(X, y, lam);
+
+        X = StackelbergUtils.getXGivenPolynomialAndWindow(testX, vars, polynomial);
+        y = StackelbergUtils.getYGivenWindow(testY, vars);
+
+        SimpleMatrix y_predict = testBetas.transpose().mult(X.transpose()).transpose();
+
+        return y.minus(y_predict).elementPower(2).elementSum() / y.numRows();
     }
 
 
@@ -49,23 +90,28 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
     @Override
     public SimpleMatrix fit() {
         int totalDataSize = theirPrices.size();
-        int startFrom = totalDataSize - TRAINING_WINDOW;
-        SimpleMatrix X = StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices.subList(startFrom, totalDataSize), WINDOW_SIZE), DEGREE);
-        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices.subList(startFrom, totalDataSize), WINDOW_SIZE);
-        double LAMBDA = 4;
-        return X.transpose().mult(X).plus(SimpleMatrix
-                .identity(X.numCols()).scale(LAMBDA)).invert().mult(X.transpose().mult(y));
+        int startFrom = totalDataSize - trainingWindow;
+        SimpleMatrix X = StackelbergUtils.getXGivenPolynomialAndWindow(ourPrices.subList(startFrom, totalDataSize), multivariateWindow, degree);
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices.subList(startFrom, totalDataSize), multivariateWindow);
+        return fitData(X, y, lambda);
+    }
+
+    private SimpleMatrix fitData(SimpleMatrix x, SimpleMatrix y, double LAMBDA) {
+        return x.transpose().mult(x).plus(SimpleMatrix
+                .identity(x.numCols()).scale(LAMBDA)).pseudoInverse().mult(x.transpose().mult(y));
     }
 
     @Override
     public SimpleMatrix predict() throws RemoteException {
         if (day > 101) {
-            updatePrices(day-1);
+            updatePrices(day - 1);
             betas = fit();
         }
         day++;
-        return StackelbergUtils.getLeadersPrice(betas, StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE), DEGREE));
+        SimpleMatrix X = StackelbergUtils.getXGivenPolynomialAndWindow(ourPrices, multivariateWindow, degree);
+        return StackelbergUtils.getLeadersPrice(betas, X);
     }
+
 
     @Override
     public void updatePrices(int day) throws RemoteException {
