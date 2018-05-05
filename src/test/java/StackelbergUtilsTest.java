@@ -27,7 +27,7 @@ public class StackelbergUtilsTest {
     }
 
     @Test
-    public void getPolynomials() {
+    public void getPolynomialsReturnsWithBigWindow() {
         List<Float> testleader = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
                 (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
                 (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
@@ -38,6 +38,20 @@ public class StackelbergUtilsTest {
                 .getPolynomial(X, 2);
 
         Assert.assertEquals(7, testPoly.numCols());
+    }
+
+    @Test
+    public void getPolynomialsWithWindow1Poly3() {
+        List<Float> testleader = Arrays.asList((float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90,
+                (float) 1.24, (float) 1.64, (float) 1.78, (float) 1.71, (float) 1.90);
+
+        SimpleMatrix X = StackelbergUtils.getXGivenWindow(testleader, 5);
+        SimpleMatrix testPoly = StackelbergUtils
+                .getPolynomial(X, 1);
+
+        Assert.assertEquals(6, testPoly.numCols());
     }
 
     @Test
