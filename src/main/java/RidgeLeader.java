@@ -10,11 +10,12 @@ import java.util.ArrayList;
 
 public class RidgeLeader extends PlayerImpl implements Regressor  {
 
+    private static final int TRAINING_WINDOW = 20;
     private ArrayList<Record> historicalData;
     private SimpleMatrix betas;
     private int day;
-    private int WINDOW_SIZE = 5;
-    private int DEGREE = 3;
+    private int WINDOW_SIZE = 10;
+    private int DEGREE = 5;
 
     private RidgeLeader() throws RemoteException, NotBoundException {
         super(PlayerType.LEADER, "LR Leader");
@@ -47,9 +48,11 @@ public class RidgeLeader extends PlayerImpl implements Regressor  {
 
     @Override
     public SimpleMatrix fit() {
-        SimpleMatrix X = StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices, WINDOW_SIZE), DEGREE);
-        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices, WINDOW_SIZE);
-        double LAMBDA = 2;
+        int totalDataSize = theirPrices.size();
+        int startFrom = totalDataSize - TRAINING_WINDOW;
+        SimpleMatrix X = StackelbergUtils.getPolynomial(StackelbergUtils.getXGivenWindow(ourPrices.subList(startFrom, totalDataSize), WINDOW_SIZE), DEGREE);
+        SimpleMatrix y = StackelbergUtils.getYGivenWindow(theirPrices.subList(startFrom, totalDataSize), WINDOW_SIZE);
+        double LAMBDA = 4;
         return X.transpose().mult(X).plus(SimpleMatrix
                 .identity(X.numCols()).scale(LAMBDA)).invert().mult(X.transpose().mult(y));
     }
